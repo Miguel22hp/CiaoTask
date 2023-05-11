@@ -18,6 +18,24 @@ board1([cell(pos(1,1) ,op(*,-3)),
          cell(pos(4,3) ,op(- ,9)),
          cell(pos(4,4) ,op(* ,4))]).
 
+
+board2([cell(pos(1,1) ,op(*,-3)),
+         cell(pos(1,3) ,op(- ,4)),
+         cell(pos(1,4) ,op(- ,555)),
+         cell(pos(2,1) ,op(- ,3)),
+         cell(pos(2,2) ,op(+ ,2000)),
+         cell(pos(2,3) ,op(* ,133)),
+         cell(pos(2,4) ,op(- ,444)),
+         cell(pos(3,1) ,op(* ,0)),
+         cell(pos(3,2) ,op(* ,155)),
+         cell(pos(3,3) ,op(// ,2)),
+         cell(pos(3,4) ,op(+ ,20)),
+         cell(pos(4,1) ,op(- ,2)),
+         cell(pos(4,2) ,op(- ,1000)),
+         cell(pos(4,3) ,op(- ,9)),
+         cell(pos(4,4) ,op(* ,4))]).
+
+
 DireccionesPermitidas =[dir(n,3), dir(s,4), dir(o,2), dir(se,10)].
 :- dynamic direccionesPermitidas/2.
 
@@ -34,7 +52,10 @@ DireccionesPermitidas =[dir(n,3), dir(s,4), dir(o,2), dir(se,10)].
 %    fail.
 
 :-pred efectuar_movimiento(Pos,Dir,Pos2)
-  #"".
+  #"Recibe en @var{Dir} una dirección, que puede ser norte(n), sur, 
+    esto(e), oeste(o) y las combinaciones de estas cuatro direcciones.
+    El predicado se encarga de comprobar que si @var{Pos} se mueve en 
+    la dirección marcada en @var{Dir}, se mueve a la casilla @var{Pos2}.".
 
 efectuar_movimiento(pos(X1,Y1), n, pos(X2,Y1)):-
     X2 is X1-1.
@@ -42,30 +63,82 @@ efectuar_movimiento(pos(X1,Y1), n, pos(X2,Y1)):-
 efectuar_movimiento(pos(X1,Y1), s, pos(X2,Y1)):-
     X2 is X1+1.
 
-efectuar_movimiento(pos(X1,Y1), e, pos(X1,Y2)):-
+efectuar_movimiento(pos(X1,Y1), o, pos(X1,Y2)):-
     Y2 is Y1-1.
 
-efectuar_movimiento(pos(X1,Y1), o,pos(X1,Y2)):-
+efectuar_movimiento(pos(X1,Y1), e,pos(X1,Y2)):-
     Y2 is Y1+1.
 
 
 efectuar_movimiento(pos(X1,Y1), no, pos(X2,Y2)):-
-    efectuar_movimiento(pos(X1,Y1), n, pos(X2,Y2)),
-    efectuar_movimiento(pos(X1,Y1), o,pos(X2,Y2)).
+    efectuar_movimiento(pos(X1,Y1), n, pos(X2,_)),
+    efectuar_movimiento(pos(X1,Y1), o,pos(_,Y2)).
 
 efectuar_movimiento(pos(X1,Y1), ne, pos(X2,Y2)):-
-    efectuar_movimiento(pos(X1,Y1), n, pos(X2,Y2)),
-    efectuar_movimiento(pos(X1,Y1), e,pos(X2,Y2)).
+    efectuar_movimiento(pos(X1,Y1), n, pos(X2,_)),
+    efectuar_movimiento(pos(X1,Y1), e,pos(_,Y2)).
     
 efectuar_movimiento(pos(X1,Y1), so, pos(X2,Y2)):-
-    efectuar_movimiento(pos(X1,Y1), n, pos(X2,Y2)),
-    efectuar_movimiento(pos(X1,Y1), o,pos(X2,Y2)).
+    efectuar_movimiento(pos(X1,Y1), s, pos(X2,_)),
+    efectuar_movimiento(pos(X1,Y1), o,pos(_,Y2)).
 
 efectuar_movimiento(pos(X1,Y1), se, pos(X2,Y2)):-
-    efectuar_movimiento(pos(X1,Y1), s, pos(X2,Y2)),
-    efectuar_movimiento(pos(X1,Y1), e,pos(X2,Y2)).
+    efectuar_movimiento(pos(X1,Y1), s, pos(X2,_)),
+    efectuar_movimiento(pos(X1,Y1), e,pos(_,Y2)).
+
+%para comprobar movimientos, hacer una lista que recorra de derecha a izquierda la lista de posiciones y comprueba 
+
+:- pred movimiento_valido(N,Pos,Dir)
+   #"Comprueba que en un tablero de tamaño @var{N}x@var{N}, desde la posicion indicada
+     en la variable @var{Pos}, se pueda mover en la dirección indicada en @var{Dir}.".
+
+movimiento_valido(N,pos(X,Y),n):-
+    X > 1,
+    Y =< N.
+
+movimiento_valido(N,pos(X,Y),s):-
+    X < N,
+    Y =< N.
+
+movimiento_valido(N,pos(X,Y),o):-
+    Y > 1,
+    X =< N.
+
+movimiento_valido(N,pos(X,Y),e):-
+    Y < N,
+    X =< N.
+
+%:- test movimiento_valido(N,P,D) : (N = 6, P = pos(2,6), D = n) + not_fails #"Caso 1 efectuar movimientos". %?,
 
 
+:- pred aplicar_op(Op, Valor, Valor2)
+   #"En @var{Op} se recibe un valor y un operador. En @var{Valor2} esta el resultado de la operación del primer valor de @var{Op} y @var{Valor}, usando el operador recibido en el segundo argumento de @var{Op}.".%Preguntar por el foro sobre si se puede poner op(A,B) en el predicado
 
+aplicar_op(op(+, Op1),Op2, Resultado) :-
+    Resultado is Op1 + Op2.
 
-    
+aplicar_op(op(-, Op1),Op2, Resultado) :-
+    Resultado is Op1 - Op2.
+
+aplicar_op(op(*,Op1),Op2, Resultado) :-
+    Resultado is Op1 * Op2.
+
+aplicar_op(op(//, Op1),Op2, Resultado) :-
+    Resultado is Op1 //  Op2.
+
+% select cell no esta aún
+
+:- pred select_cell(IPos,Op,Board,NewBoard)
+  #"".
+
+   
+%select_cell(IPos,Op,[cell(IPos,Op)|Board],NewBoard):-
+%    select_cell(IPos,Op,Board,NewBoard).
+
+%select_cell(IPos,Op,[cell(C,D)|Board],[cell(A,B)|NewBoard]):-
+%    C == A,
+%    D == B,
+%    select_cell(IPos,Op,Board,NewBoard).
+
+%select_cell(_,_,[],[]).
+        
