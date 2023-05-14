@@ -141,4 +141,49 @@ aplicar_op(op(//, Op1),Op2, Resultado) :-
 %    select_cell(IPos,Op,Board,NewBoard).
 
 %select_cell(_,_,[],[]).
-        
+
+select_cell(IPos, Op, [cell(Pos,OpAux)|Board], NewBoard):-
+    IPos == Pos,
+    Op == OpAux,
+    select_cell(IPos, Op, Board, NewBoard).
+
+select_cell(IPos, Op, [cell(Pos,OpAux)|Board],[cell(Pos1,OpAux1)|NewBoard]):-
+    IPos \= Pos, %solo puede haber una posicion igual en todo el tablero
+    Pos == Pos1,
+    OpAux == OpAux1,
+    select_cell(IPos, Op, Board, NewBoard).
+
+select_cell(_,_,[],[]).
+
+
+%select_cell(pos(1,2),op(- ,1), [cell(pos(1,1) ,op(*,-3)),cell(pos(1,2),op(*,-3)), cell(pos(1,3) ,op(- ,4))],[cell(pos(1,1) ,op(- ,1)), cell(pos(1,3) ,op(- ,4))]).select_cell(pos(1,2),op(- ,1), [cell(pos(1,1) ,op(*,-3)),cell(pos(1,2),op(-,1)), cell(pos(1,3) ,op(- ,4))],[cell(pos(1,1) ,op(* ,-3)), cell(pos(1,3) ,op(- ,4))]).
+
+%[cell(pos(1,1) ,op(*,-3)),cell(pos(1,2) ,op(- ,1)), cell(pos(1,3) ,op(- ,4))]
+
+:- pred select_dir(Dir,Dirs,NewDirs)
+   #"En @var{Dir} hay una dirección, puede ser n, s, o, e, además de las comninaciones entre estas. En 
+     @var{Dirs} es donde hay una lista de direcciones permitidas, que es una lista de estructuras dir(A,B),
+     con A siendo una dirección y B el numero de veces que se puede ir en esa dirección.
+     En @var{NewDirs} esta la misma lista, pero para @var{Dir} un valor menos en el número de movimientos 
+     que permiten realizar, o no aparecer si solo podía realizar un movimiento.".
+
+select_dir(Dir,[dir(A,B)|Dirs],[dir(C,D)|NewDirs]):-
+    Dir \= A,
+    A == C,
+    B == D,
+    select_dir(Dir,Dirs,NewDirs).
+
+select_dir(Dir,[dir(A,B)|Dirs],[dir(C,D)|NewDirs]):-
+    Dir == A,
+    E is B - 1,
+    dir(A,E) == dir(C,D),
+    select_dir(Dir,Dirs,NewDirs).
+
+select_dir(Dir,[dir(A,1)|Dirs],NewDirs):-
+    Dir == A,
+    select_dir(Dir,Dirs,NewDirs).
+
+select_dir(_,[],[]).
+    
+    
+%select_dir(n,[dir(n,3), dir(s,4), dir(o,2), dir(se,10)],[dir(n,2), dir(s,4), dir(o,2), dir(se,10)]).
