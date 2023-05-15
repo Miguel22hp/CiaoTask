@@ -209,5 +209,15 @@ select_dir(Dir, [N|Dirs],[N|NewDirs]):-
 
 %:- pred generar_recorrido(Ipos,N,Board,[A|DireccionesPermitidas,Recorrido,Valor)
 
-%generar_recorrido(Ipos,N,Board,[A|DireccionesPermitidas,Recorrido,Valor):-
+generar_recorrido(Ipos,N,Board,DireccionesPermitidas,Recorrido,Valor):-
+    movimiento_valido(N,Ipos,Dir), %encuentras una dirección posible a la que ir
+    select_dir(Dir, DireccionesPermitidas, NewDireccionesPermitidas), %se elimina la dirección escogida de la lista de direcciones permitidas
+    select_cell(Ipos,Op,Board,NewBoard), %Obtienes la operación asociada a la celda y el tablero sin esa celda
+    aplicar_op(Op,Valor,Nuevo_Valor), %Realizas la operación de la celda
+    efectuar_movimiento(Ipos,Dir, NewPos), %Te mueves a la posición que corresponda
+    %me falta el recorrido
+    generar_recorrido(NewPos,N,NewBoard,NewDireccionesPermitidas,,Valor).%me falta el recorrido
+
+    
+    
     
