@@ -131,32 +131,32 @@ aplicar_op(op(//, Op1),Op2, Resultado) :-
 :- pred select_cell(IPos,Op,Board,NewBoard)
   #"".
 
-   
-%select_cell(IPos,Op,[cell(IPos,Op)|Board],NewBoard):-
-%    select_cell(IPos,Op,Board,NewBoard).
+%select_cell(IPos, Op, [cell(Pos,OpAux)|Board], NewBoard):-
+%    nonvar(IPos), nonvar(Op),
+%    IPos == Pos,
+%    Op == OpAux,
+%    select_cell(IPos, Op, Board, NewBoard).
 
-%select_cell(IPos,Op,[cell(C,D)|Board],[cell(A,B)|NewBoard]):-
-%    C == A,
-%    D == B,
-%    select_cell(IPos,Op,Board,NewBoard).
+%select_cell(IPos, Op, [cell(Pos,OpAux)|Board],[cell(Pos1,OpAux1)|NewBoard]):-
+%    nonvar(IPos), nonvar(Op),
+%    IPos \= Pos, %solo puede haber una posicion igual en todo el tablero
+%    Pos == Pos1,
+%    OpAux == OpAux1,
+%    select_cell(IPos, Op, Board, NewBoard).
 
-%select_cell(_,_,[],[]).
 
-select_cell(IPos, Op, [cell(Pos,OpAux)|Board], NewBoard):-
-    IPos == Pos,
-    Op == OpAux,
+
+select_cell(IPos, Op, [cell(IPos,Op)|Board], NewBoard):-
     select_cell(IPos, Op, Board, NewBoard).
 
-select_cell(IPos, Op, [cell(Pos,OpAux)|Board],[cell(Pos1,OpAux1)|NewBoard]):-
-    IPos \= Pos, %solo puede haber una posicion igual en todo el tablero
-    Pos == Pos1,
-    OpAux == OpAux1,
+select_cell(IPos, Op, [cell(Pos,Ope)|Board], [cell(Pos,Ope)|NewBoard]) :-
+    IPos \= Pos,
     select_cell(IPos, Op, Board, NewBoard).
-
+    
 select_cell(_,_,[],[]).
 
-
-%select_cell(pos(1,2),op(- ,1), [cell(pos(1,1) ,op(*,-3)),cell(pos(1,2),op(*,-3)), cell(pos(1,3) ,op(- ,4))],[cell(pos(1,1) ,op(- ,1)), cell(pos(1,3) ,op(- ,4))]).select_cell(pos(1,2),op(- ,1), [cell(pos(1,1) ,op(*,-3)),cell(pos(1,2),op(-,1)), cell(pos(1,3) ,op(- ,4))],[cell(pos(1,1) ,op(* ,-3)), cell(pos(1,3) ,op(- ,4))]).
+%select_cell(pos(1,2),op(- ,1), [cell(pos(1,1) ,op(*,-3)),cell(pos(1,2),op(*,-3)), cell(pos(1,3) ,op(- ,4))],[cell(pos(1,1) ,op(- ,1)), cell(pos(1,3) ,op(- ,4))]).
+%select_cell(pos(1,2),op(- ,1), [cell(pos(1,1) ,op(*,-3)),cell(pos(1,2),op(-,1)), cell(pos(1,3) ,op(- ,4))],[cell(pos(1,1) ,op(* ,-3)), cell(pos(1,3) ,op(- ,4))]).
 
 %[cell(pos(1,1) ,op(*,-3)),cell(pos(1,2) ,op(- ,1)), cell(pos(1,3) ,op(- ,4))]
 
@@ -167,23 +167,47 @@ select_cell(_,_,[],[]).
      En @var{NewDirs} esta la misma lista, pero para @var{Dir} un valor menos en el número de movimientos 
      que permiten realizar, o no aparecer si solo podía realizar un movimiento.".
 
-select_dir(Dir,[dir(A,B)|Dirs],[dir(C,D)|NewDirs]):-
-    Dir \= A,
-    A == C,
-    B == D,
-    select_dir(Dir,Dirs,NewDirs).
+%select_dir(Dir,[dir(A,B)|Dirs],[dir(C,D)|NewDirs]):-
+%    nonvar(Dir),
+%    Dir \= A,
+%    A == C,
+%    B == D,
+%    select_dir(Dir,Dirs,NewDirs).
 
-select_dir(Dir,[dir(A,B)|Dirs],[dir(C,D)|NewDirs]):-
-    Dir == A,
-    E is B - 1,
-    dir(A,E) == dir(C,D),
-    select_dir(Dir,Dirs,NewDirs).
+%select_dir(Dir,[dir(A,B)|Dirs],[dir(C,D)|NewDirs]):-
+%    Dir == A,
+%    E is B - 1,
+%    dir(A,E) == dir(C,D),
+%    select_dir(Dir,Dirs,NewDirs).
 
-select_dir(Dir,[dir(A,1)|Dirs],NewDirs):-
-    Dir == A,
-    select_dir(Dir,Dirs,NewDirs).
+%select_dir(Dir,[dir(A,1)|Dirs],NewDirs):-
+%    Dir == A,
+%    select_dir(Dir,Dirs,NewDirs).
 
+%select_dir(_,[],[]).
 select_dir(_,[],[]).
+
+select_dir(Dir, [dir(Dir,X)|Dirs],[dir(Dir,Y)|NewDirs]):-
+    X > 1,
+    Y is X - 1, 
+    select_dir(Dir,Dirs,NewDirs).
+
+select_dir(Dir, [dir(Dir,1)|Dirs],NewDirs):-
+    select_dir(Dir,Dirs,NewDirs).
+
+select_dir(Dir, [N|Dirs],[N|NewDirs]):-
+    N =.. [dir,A,B],
+    Dir \= A,
+    select_dir(Dir,Dirs,NewDirs).
+
+
     
     
 %select_dir(n,[dir(n,3), dir(s,4), dir(o,2), dir(se,10)],[dir(n,2), dir(s,4), dir(o,2), dir(se,10)]).
+
+%select_dir(n,[dir(n,3), dir(s,4), dir(o,2), dir(se,10)],A).&
+
+%:- pred generar_recorrido(Ipos,N,Board,[A|DireccionesPermitidas,Recorrido,Valor)
+
+%generar_recorrido(Ipos,N,Board,[A|DireccionesPermitidas,Recorrido,Valor):-
+    
