@@ -131,29 +131,15 @@ aplicar_op(op(//, Op1),Op2, Resultado) :-
 :- pred select_cell(IPos,Op,Board,NewBoard)
   #"".
 
-%select_cell(IPos, Op, [cell(Pos,OpAux)|Board], NewBoard):-
-%    nonvar(IPos), nonvar(Op),
-%    IPos == Pos,
-%    Op == OpAux,
+%select_cell(IPos, Op, [cell(IPos,Op)|Board], NewBoard):-
 %    select_cell(IPos, Op, Board, NewBoard).
-
-%select_cell(IPos, Op, [cell(Pos,OpAux)|Board],[cell(Pos1,OpAux1)|NewBoard]):-
-%    nonvar(IPos), nonvar(Op),
-%    IPos \= Pos, %solo puede haber una posicion igual en todo el tablero
-%    Pos == Pos1,
-%    OpAux == OpAux1,
-%    select_cell(IPos, Op, Board, NewBoard).
-
-
-
-select_cell(IPos, Op, [cell(IPos,Op)|Board], NewBoard):-
-    select_cell(IPos, Op, Board, NewBoard).
+select_cell(IPos, Op, [cell(IPos,Op)|Board], Board).
 
 select_cell(IPos, Op, [cell(Pos,Ope)|Board], [cell(Pos,Ope)|NewBoard]) :-
     IPos \= Pos,
     select_cell(IPos, Op, Board, NewBoard).
     
-select_cell(_,_,[],[]).
+%select_cell(_,_,[],[]).
 
 %select_cell(pos(1,2),op(- ,1), [cell(pos(1,1) ,op(*,-3)),cell(pos(1,2),op(*,-3)), cell(pos(1,3) ,op(- ,4))],[cell(pos(1,1) ,op(- ,1)), cell(pos(1,3) ,op(- ,4))]).
 %select_cell(pos(1,2),op(- ,1), [cell(pos(1,1) ,op(*,-3)),cell(pos(1,2),op(-,1)), cell(pos(1,3) ,op(- ,4))],[cell(pos(1,1) ,op(* ,-3)), cell(pos(1,3) ,op(- ,4))]).
@@ -167,41 +153,19 @@ select_cell(_,_,[],[]).
      En @var{NewDirs} esta la misma lista, pero para @var{Dir} un valor menos en el número de movimientos 
      que permiten realizar, o no aparecer si solo podía realizar un movimiento.".
 
-%select_dir(Dir,[dir(A,B)|Dirs],[dir(C,D)|NewDirs]):-
-%    nonvar(Dir),
-%    Dir \= A,
-%    A == C,
-%    B == D,
-%    select_dir(Dir,Dirs,NewDirs).
-
-%select_dir(Dir,[dir(A,B)|Dirs],[dir(C,D)|NewDirs]):-
-%    Dir == A,
-%    E is B - 1,
-%    dir(A,E) == dir(C,D),
-%    select_dir(Dir,Dirs,NewDirs).
-
-%select_dir(Dir,[dir(A,1)|Dirs],NewDirs):-
-%    Dir == A,
-%    select_dir(Dir,Dirs,NewDirs).
-
 %select_dir(_,[],[]).
-select_dir(_,[],[]).
 
-select_dir(Dir, [dir(Dir,X)|Dirs],[dir(Dir,Y)|NewDirs]):-
+%select_dir(Dir, [dir(Dir,X)|Dirs],[dir(Dir,Y)|NewDirs]):-
+select_dir(Dir, [dir(Dir,X)|Dirs],[dir(Dir,Y)|Dirs]):-
     X > 1,
-    Y is X - 1, 
-    select_dir(Dir,Dirs,NewDirs).
+    Y is X - 1.
 
-select_dir(Dir, [dir(Dir,1)|Dirs],NewDirs):-
-    select_dir(Dir,Dirs,NewDirs).
+select_dir(Dir, [dir(Dir,1)|Dirs],Dirs).
 
 select_dir(Dir, [N|Dirs],[N|NewDirs]):-
     N =.. [dir,A,B],
     Dir \= A,
     select_dir(Dir,Dirs,NewDirs).
-
-
-    
     
 %select_dir(n,[dir(n,3), dir(s,4), dir(o,2), dir(se,10)],[dir(n,2), dir(s,4), dir(o,2), dir(se,10)]).
 
@@ -209,15 +173,27 @@ select_dir(Dir, [N|Dirs],[N|NewDirs]):-
 
 %:- pred generar_recorrido(Ipos,N,Board,[A|DireccionesPermitidas,Recorrido,Valor)
 
-generar_recorrido(Ipos,N,Board,DireccionesPermitidas,Recorrido,Valor):-
-    movimiento_valido(N,Ipos,Dir), %encuentras una dirección posible a la que ir
-    select_dir(Dir, DireccionesPermitidas, NewDireccionesPermitidas), %se elimina la dirección escogida de la lista de direcciones permitidas
-    select_cell(Ipos,Op,Board,NewBoard), %Obtienes la operación asociada a la celda y el tablero sin esa celda
-    aplicar_op(Op,Valor,Nuevo_Valor), %Realizas la operación de la celda
-    efectuar_movimiento(Ipos,Dir, NewPos), %Te mueves a la posición que corresponda
-    %me falta el recorrido
-    generar_recorrido(NewPos,N,NewBoard,NewDireccionesPermitidas,,Valor).%me falta el recorrido
 
+%primer paso valor empiece a 0
+%generar_recorrido(Ipos,N,Board,DireccionesPermitidas,Recorrido,Valor):-
+%    generar_recorrido_aux(Ipos,N,Board,DireccionesPermitidas,Recorrido,0).
+
+%generar_recorrido_aux(Ipos,N,Board,DireccionesPermitidas,[(Ipos,Valor)|Recorrido],Valor):-
+%    movimiento_valido(N,Ipos,Dir), %encuentras una dirección posible a la que ir
+%    select_dir(Dir, DireccionesPermitidas, NewDireccionesPermitidas), %se elimina la dirección escogida de la lista de direcciones permitidas
+%    select_cell(Ipos,Op,Board,NewBoard), %Obtienes la operación asociada a la celda y el tablero sin esa celda
+%    aplicar_op(Op,Valor,Nuevo_Valor), %Realizas la operación de la celda
+%    efectuar_movimiento(Ipos,Dir, NewPos), %Te mueves a la posición que corresponda
+%    select_cell(NewPos,Op,NewBoard,A), %compruebas la posicion de la posicion a la que te mueves
+    %me falta el recorrido
+%    generar_recorrido_aux(NewPos,N,NewBoard,NewDireccionesPermitidas,Recorrido,Nuevo_Valor).%me falta el recorrido
+
+%generar_recorrido_aux(_,_,[],_,_,_).
+%generar_recorrido_aux(_,_,_,[],_,_).
+%generar_recorrido_aux(_,_,_,_,[],_).
+
+
+
+%generar_recorrido(pos(1,1),2,[cell(pos(1,1) ,op(*,-3)),cell(pos(1,2) ,op(- ,1)),cell(pos(2,1) ,op(- ,3)),cell(pos(2,2) ,op(+ ,2000))],[dir(n,3), dir(s,4), dir(o,2), dir(se,10)],A,V).
     
-    
-    
+%  generar_recorrido(pos(1,1),3,[cell(pos(1,1) ,op(*,-3)),cell(pos(1,2) ,op(- ,1)),cell(pos(1,3) ,op(- ,4)),cell(pos(2,1) ,op(- ,3)),cell(pos(2,2) ,op(+ ,2000)),cell(pos(2,3) ,op(* ,133)),cell(pos(3,1) ,op(* ,0)),cell(pos(3,2) ,op(* ,155)),cell(pos(3,3) ,op(// ,2))],[dir(n,3), dir(s,4), dir(o,2), dir(se,10)],A,V).  
