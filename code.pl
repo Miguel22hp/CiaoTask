@@ -141,7 +141,9 @@ movimiento_valido(N,pos(X,Y),se):-
 :-test movimiento_valido(N,Pos,Dir): (N=3,Pos=(1,1)) + fails.
 
 :- pred aplicar_op(Op, Valor, Valor2)
-   #"En @var{Op} se recibe un valor y un operador. En @var{Valor2} esta el resultado de la operación del primer valor de @var{Op} y @var{Valor}, usando el operador recibido en el segundo argumento de @var{Op}.".
+   #"En @var{Op} se recibe un valor y un operador. En @var{Valor2} esta el resultado de la operación
+     del primer valor de @var{Op} y @var{Valor}, usando el operador recibido en el segundo argumento
+     de @var{Op}.".
 
 aplicar_op(op(+, Op1),Op2, Resultado) :-
     Resultado is Op2 + Op1.
@@ -220,8 +222,13 @@ select_dir(Dir, [N|Dirs],[N|NewDirs]):-
 
 %select_dir(n,[dir(n,3), dir(s,4), dir(o,2), dir(se,10)],A).&
 
-%:- pred generar_recorrido(Ipos,N,Board,[A|DireccionesPermitidas,Recorrido,Valor)
-%   #" ".
+:- pred generar_recorrido(Ipos,N,Board,DireccionesPermitidas,Recorrido,Valor)
+   #" Este predicado genera un recorrido a partir de la posición indicada en @var{Ipos}. 
+      En el tablero indicado en @var{Board}, de tamaño @var{N}, debe recorrerlo entero usando
+      solo direcciones incluidas en @var{DireccionesPermitidas}, devolver una lista de 
+      pares la posición a la que va y el valor del recorrido en ese momento en @var{Recorrido},
+      y el valor final en @var{Valor}. El valor se consigue realizando sobre el valor de cada
+      posición la operación asociada a la celda seleccionada en el tablero. ".
 
 generar_recorrido(Ipos,N,Board,DireccionesPermitidas,Recorrido,Valor):-
     generar_recorrido_aux(Ipos,N,Board,DireccionesPermitidas,Recorrido,0,Valor).
@@ -237,6 +244,10 @@ generar_recorrido_aux(Ipos,N,Board,DireccionesPermitidas,[(Ipos,V)|Recorrido],Va
     efectuar_movimiento(Ipos,Dir,Pos2), %dirección a la que tiene que ir para el siguiente movimiento
     select_dir(Dir,DireccionesPermitidas,NewDireccionesPermitidas), %saca la dirección utilizada
     generar_recorrido_aux(Pos2,N,NewBoard,NewDireccionesPermitidas,Recorrido,V,ValorF).
+
+:- pred generar_recorrido_aux(Ipos,N,Board,DireccionesPermitidas,Recorrido,ValorActual,ValorF)
+   #"Igual que generar_recorrido/6, pero en @var{ValorActual} esta el valor que tiene en cada
+     momento el recorrido".
 
 :- test generar_recorrido(Ipos,N,Board,DireccionesPermitidas,Recorrido,Valor) :
    (Ipos=pos(1,1),N=2,Board=[cell(pos(1,1) ,op(*,-3)),cell(pos(1,2) ,op(- ,1)),cell(pos(2,1) ,op(- ,3)),cell(pos(2,2) ,op(+ ,2000))],
